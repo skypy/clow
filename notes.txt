@@ -1,0 +1,2 @@
+# specify clow setup
+specify init . --here --ai claude
