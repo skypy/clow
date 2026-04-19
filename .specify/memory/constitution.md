@@ -1,50 +1,102 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+==================
+Version change: (unversioned template) → 1.0.0
+Bump rationale: Initial ratification — template placeholders replaced with concrete principles.
+
+Modified principles:
+  - [PRINCIPLE_1_NAME] → Local-First, No Network
+  - [PRINCIPLE_2_NAME] → CLI Text Protocol
+  - [PRINCIPLE_3_NAME] → Graceful Schema Degradation
+  - [PRINCIPLE_4_NAME] → Fixture-Driven Testing
+  - [PRINCIPLE_5_NAME] → Simplicity (YAGNI)
+
+Added sections:
+  - Technical Constraints (previously [SECTION_2_NAME])
+  - Development Workflow (previously [SECTION_3_NAME])
+
+Removed sections: none
+
+Templates requiring updates:
+  - .specify/templates/plan-template.md — Constitution Check section references these gates (⚠ pending concrete wiring when `/speckit-plan` is next run)
+  - .specify/templates/spec-template.md — no changes required (✅)
+  - .specify/templates/tasks-template.md — no changes required (✅)
+
+Follow-up TODOs: none
+-->
+
+# Claude Wrapped Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Local-First, No Network
+All processing MUST run on the user's machine against files they already own
+(`~/.claude/projects/*.jsonl`, `~/.claude.json`, `~/.claude/todos/*.json`). The
+tool MUST NOT emit telemetry, sync state to a server, or make outbound network
+calls during normal operation. Rationale: conversation logs are sensitive — the
+user is the sole audience and sole custodian.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. CLI Text Protocol
+Every command MUST follow the UNIX text protocol: stdin/args in, stdout for
+results, stderr for diagnostics. Human-readable output is the default; a
+`--json` flag MUST produce machine-readable output for every command that emits
+data. Exit codes MUST distinguish success (0), user error (2), and internal
+error (1). Rationale: composability with shell pipelines and scripting is a
+first-class use case.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Graceful Schema Degradation
+The Claude Code JSONL format is not a public API and can change between
+releases. Parsers MUST skip unknown event types and tolerate missing optional
+fields without crashing. Unrecognized or malformed records MUST be counted and
+reported (via `--verbose` or a warning footer), never silently dropped.
+Rationale: version drift is the single most likely failure mode in production.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Fixture-Driven Testing
+Unit and integration tests MUST run against anonymized JSONL fixtures derived
+from real Claude Code output, not hand-written mocks. Any new parser or
+aggregator change MUST ship with a fixture that exercises the new behavior.
+Per-session totals in tests MUST sum to the reported grand total.
+Rationale: mock-based tests silently diverge from reality; fixtures preserve
+the shape and edge cases of actual user data.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Simplicity (YAGNI)
+One pipx-installable binary. No config file, no daemon, no background cache, no
+plugin system. Features MUST be listed in the current plan's Metrics section
+before being implemented. New abstractions (base classes, registries, plugin
+APIs) require explicit justification in the plan. Rationale: this is a
+personal-scale tool; complexity added "just in case" is a net liability.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technical Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+- **Runtime**: Python 3.11+, installable via `pipx install claude-wrapped`.
+- **Primary dependencies**: `click` (CLI), `rich` (rendering), `orjson`
+  (JSONL parsing), `platformdirs` (path resolution). Additions require a
+  line item in the plan.
+- **Non-goals** (from plan.md): HTML/web output, cloud sync, multi-user
+  accounts, real-time dashboards, editing local files.
+- **Cost estimation**: off by default; rate tables documented in-repo and
+  versioned alongside code.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- **Spec-driven**: every substantive change flows through `/speckit-specify`
+  → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`. Direct commits
+  outside this flow are reserved for typo/tooling fixes.
+- **Versioning**: MAJOR.MINOR.PATCH. Removing or renaming a CLI flag or
+  subcommand is MAJOR. Adding a flag, subcommand, or metric is MINOR.
+  Bug fixes and wording changes are PATCH.
+- **Compliance review**: every PR description MUST state which principles
+  the change touches and, for any that appear relaxed, provide justification
+  that survives this constitution's next amendment cycle.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes ad-hoc conventions. Amendments MUST be proposed
+via a PR that updates `.specify/memory/constitution.md`, bumps the version per
+the rules in Principle V and the Versioning section above, and updates the
+Sync Impact Report at the top of this file. Amendments take effect on merge.
+All reviewers MUST verify compliance with the Core Principles before approving.
+Complexity or deviations MUST be justified in the PR description, not in code
+comments.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-04-19 | **Last Amended**: 2026-04-19

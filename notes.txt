@@ -1,2 +1,25 @@
-# specify clow setup
+# Speckit workflow — command order for a new project
+
+# 1. Initialize the project (in an empty or existing dir)
 specify init . --here --ai claude
+
+# 2. Ratify the project constitution (principles, tech constraints, governance)
+/speckit-constitution
+
+# 3. Describe the feature — creates a feature branch + specs/<branch>/spec.md
+/speckit-specify "<one-line feature description>"
+
+# 4. Plan the feature — fills plan.md + research.md / data-model.md / contracts/ / quickstart.md
+/speckit-plan
+
+# 5. Break the plan into tasks.md
+/speckit-tasks
+
+# 6. Execute the tasks
+/speckit-implement
+
+
+# --- Git extension hooks (invoke manually when prompted) ---
+/speckit-git-initialize   # runs `git init` if repo not yet created (idempotent)
+/speckit-git-feature      # creates next sequential branch NNN-<short-name>
+/speckit-git-commit       # auto-commit before/after any speckit command

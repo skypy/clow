@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "claude-wrapped"
+version = "0.1.0"
+description = "A personal year-in-review for your Claude Code history, rendered in the terminal."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Kinjal", email = "kchakraborty@vendasta.com" }]
+dependencies = [
+    "click>=8.1",
+    "rich>=13.7",
+    "orjson>=3.9",
+    "platformdirs>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "black>=24.0",
+]
+
+[project.scripts]
+claude-wrapped = "claude_wrapped.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/claude_wrapped"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers -q"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
